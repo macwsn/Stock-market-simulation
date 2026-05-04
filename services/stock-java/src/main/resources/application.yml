@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: stock-service
+
+  threads:
+    virtual:
+      enabled: true
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/stocks}
+    username: ${DATABASE_USER:stocks}
+    password: ${DATABASE_PASSWORD:stocks}
+    hikari:
+      maximum-pool-size: 25        # enough for high load; vthreads wait cheaply
+      minimum-idle: 5
+      connection-timeout: 3000     # fail fast when pool exhausted under spike load
+      idle-timeout: 300000
+      max-lifetime: 600000
+      leak-detection-threshold: 15000
+      pool-name: StockHikariPool
+
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
+
+server:
+  port: ${SERVER_PORT:8081}
+  shutdown: graceful
+  tomcat:
+    max-connections: 10000
+    accept-count: 500
+    connection-timeout: 20000
+
+logging:
+  level:
+    root: INFO
+    com.stockmarket: DEBUG
+    org.springframework.web: WARN
+    org.springframework.transaction: WARN
+    com.zaxxer.hikari: WARN

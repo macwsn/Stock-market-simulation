@@ -1,0 +1,85 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: stocks
+      POSTGRES_PASSWORD: stocks
+      POSTGRES_DB: stocks
+    volumes:
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stocks -d stocks"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+
+  stock-java-1: &stock-java
+    build:
+      context: ./services/stock-java
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/stocks
+      DATABASE_USER: stocks
+      DATABASE_PASSWORD: stocks
+      SERVER_PORT: "8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  stock-java-2:
+    <<: *stock-java
+    depends_on:
+      postgres:
+        condition: service_healthy
+      stock-java-1:
+        condition: service_started
+
+  stock-java-3:
+    <<: *stock-java
+    depends_on:
+      postgres:
+        condition: service_healthy
+      stock-java-1:
+        condition: service_started
+
+  audit-go-1: &audit-go
+    build:
+      context: ./services/audit-go
+    environment:
+      DATABASE_URL: postgres://stocks:stocks@postgres:5432/stocks?sslmode=disable
+      SERVER_PORT: "8082"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  audit-go-2:
+    <<: *audit-go
+    depends_on:
+      postgres:
+        condition: service_healthy
+      audit-go-1:
+        condition: service_started
+
+  frontend:
+    build:
+      context: ./services/frontend
+    restart: unless-stopped
+
+  haproxy:
+    image: haproxy:2.9-alpine
+    ports:
+      - "${PORT:-8080}:${PORT:-8080}"
+    environment:
+      PORT: "${PORT:-8080}"
+    volumes:
+      - ./infra/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    depends_on:
+      stock-java-1:
+        condition: service_started
+      audit-go-1:
+        condition: service_started
+      frontend:
+        condition: service_started
+    restart: unless-stopped

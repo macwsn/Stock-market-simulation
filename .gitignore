@@ -1,0 +1,26 @@
+# Java / Gradle
+**/.gradle/
+**/build/
+**/out/
+*.class
+*.log
+*.iml
+.idea/
+# keep the wrapper jar committed so CI doesn't need Gradle pre-installed
+!**/gradle/wrapper/gradle-wrapper.jar
+
+# Go
+**/vendor/
+
+# Node
+**/node_modules/
+**/dist/
+**/coverage/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local env overrides
+.env
+.env.local
