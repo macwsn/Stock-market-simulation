@@ -233,11 +233,6 @@ Three Java replicas serve writes simultaneously so state must live in one place 
 
 All exceptions surface as structured JSON with `error`, `status`, `path`, `requestId`, and `timestamp`. The `GlobalExceptionHandler` covers domain errors (404/400 from business rules), infrastructure errors (`DataAccessException` → 503), and Spring MVC exceptions (405, 415, 404 for unknown paths). A servlet filter assigns a correlation ID to every request and logs `METHOD path → status (ms) reqId=…` for every non-health call on both the Java and Go services.
 
-### What is intentionally omitted
-
-* No price model, balance tracking, or order book — explicitly out of scope per the spec.
-* `POST /stocks` is a full replace (`DELETE` + insert). No FK links `wallet_stocks` to `bank_stocks`, so previously issued shares survive a bank reset; subsequent buys for a forgotten stock return 404.
-
 ## Repository layout
 
 ```
