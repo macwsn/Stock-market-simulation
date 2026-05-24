@@ -22,7 +22,16 @@ jobs:
 
       - name: Build and run unit tests
         working-directory: services/stock-java
-        run: ./gradlew build --no-daemon
+        run: ./gradlew build --no-daemon --info --stacktrace
+
+      - name: Upload test report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stock-java-test-report
+          path: |
+            services/stock-java/build/reports/tests/
+            services/stock-java/build/test-results/
 
       - name: Build Docker image
         run: docker build -t stock-java:ci ./services/stock-java
