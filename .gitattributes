@@ -1,2 +1,8 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Shell scripts and gradle wrapper must always use LF
+# (CRLF breaks /bin/sh shebang inside Linux containers — exit 127)
+*.sh        text eol=lf
+gradlew     text eol=lf
+run.sh      text eol=lf
