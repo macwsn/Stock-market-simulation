@@ -6,3 +6,7 @@
 *.sh        text eol=lf
 gradlew     text eol=lf
 run.sh      text eol=lf
+
+# SQL scripts must use LF — Testcontainers ScriptUtils on Linux
+# misparses CRLF and Postgres sees syntax errors.
+*.sql       text eol=lf
