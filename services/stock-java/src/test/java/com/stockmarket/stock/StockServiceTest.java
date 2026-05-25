@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.http.HttpStatus;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -34,10 +35,11 @@ class StockServiceTest {
 
     @Autowired StockService service;
     @Autowired StockRepository repo;
+    @Autowired JdbcTemplate jdbc;
 
     @BeforeEach
     void reset() {
-        repo.replaceBank(List.of());
+        jdbc.execute("TRUNCATE wallet_stocks, wallets, audit_log, bank_stocks RESTART IDENTITY CASCADE");
     }
 
     // --- buy ---
