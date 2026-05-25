@@ -30,7 +30,7 @@ class StockServiceTest {
     @Container
     @ServiceConnection
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine")
-            .withInitScript("classpath:schema.sql");
+            .withInitScript("schema.sql");
 
     @Autowired StockService service;
     @Autowired StockRepository repo;
